@@ -12,6 +12,7 @@ from esphome.const import (
     CONF_TRIGGER_ID,
     CONF_OTA,
     KEY_PAST_SAFE_MODE,
+    CONF_VERSION,
 )
 from esphome.core import CORE, coroutine_with_priority
 
@@ -51,6 +52,7 @@ CONFIG_SCHEMA = cv.All(
             cv.GenerateID(): cv.declare_id(OTAComponent),
             cv.Optional(CONF_SAFE_MODE, default=False): cv.boolean,
             cv.Optional(CONF_UNPROTECTED_WRITES, default=False): cv.boolean,
+            cv.Optional(CONF_VERSION, default=2): cv.one_of(1, 2, int=True),
             cv.SplitDefault(
                 CONF_PORT,
                 esp8266=8266,
@@ -110,6 +112,7 @@ async def to_code(config):
     if config[CONF_UNPROTECTED_WRITES]:
         cg.add_build_flag("-DCONFIG_SPI_FLASH_DANGEROUS_WRITE_ALLOWED=1")
         cg.add_define("USE_UNPROTECTED_WRITES")
+    cg.add_define("USE_OTA_VERSION", config[CONF_VERSION])
 
     await cg.register_component(var, config)
 
